@@ -1,0 +1,78 @@
+<body>
+	<h1>Widget chat</h1>
+	<div id="chat-history">
+		<ul></ul>
+	</div>
+	<div id="new-message">
+		<textarea id="message-input"></textarea>
+		<button id="new-message-button">Send message</button>
+	</div>
+</body>
+
+<script>
+	$("#new-message").hide();
+	$(document).ready(function(){
+		var ChatEngine = ChatEngineCore.create({
+		    publishKey: 'pub-c-658958a5-df07-4442-8e66-feec43080411',
+		    subscribeKey: 'sub-c-af5c381a-3744-11e8-9da7-9e748936d455'
+		}); 
+
+		var cookies = document.cookie.split(';');
+		var channelid = cookies[1].split('=')[1];
+		var uid = cookies[0].split('=')[1];
+		console.log(uid+" "+channelid)
+
+		ChatEngine.connect(uid); 
+		ChatEngine.on('$.ready', (data) => {
+		    console.log('ChatEngine ready to go!');
+			var lobby = new ChatEngine.Chat(channelid);
+			lobby.on('$.connected', () => {
+	          lobby.search({
+	            event: 'message',
+	            limit: 50
+	          }).on('message', (data) => {
+	            render_message(data,uid,true);
+	          });	        
+	      	});
+
+	      	$("#new-message").show();
+
+		    $("#new-message-button" ).click(function() {
+				lobby.emit('message', {
+				    text: $('#message-input').val()
+				});
+				$('#message-input').val("")
+			});
+			
+			lobby.on('message', (payload) => {
+			    console.log(payload.sender.uuid, 'sent a message', payload.data.text);
+			    render_message(payload,uid,false);
+
+			});
+		});
+
+	});
+	function render_message(data,uid,isHistory) {
+		if(isHistory){
+		  	if(data.sender.uuid === uid){
+	            $('#chat-history ul').prepend(
+				    $('<li>').append(
+				    	$('<p>').attr('class','speech').append("You: "+data.data.text)));  
+            }else{
+            	$('#chat-history ul').prepend(
+				    $('<li>').append(
+				    	$('<p>').attr('class','speech').append("User: "+data.data.text)));  
+            }
+		}else{
+			if(data.sender.uuid === uid){
+		            $('#chat-history ul').append(
+					    $('<li>').append(
+					    	$('<p>').attr('class','speech').append("You: "+data.data.text)));  
+	            }else{
+	            	$('#chat-history ul').append(
+					    $('<li>').append(
+					    	$('<p>').attr('class','speech').append("User: "+data.data.text)));  	
+				}	            				
+		}
+	}
+</script>

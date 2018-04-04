@@ -1,0 +1,19 @@
+<body>
+	<button id="open-chat">Chat Widget</button>
+	<iframe src="http://localhost:3000/chat/widget" id="chat-widget">
+	  <p>Your browser does not support iframes.</p>
+	</iframe>
+</body>
+
+<script type="text/javascript">
+	$("#chat-widget").hide();
+	$(document).ready(function(){
+	    $("#open-chat" ).click(function() {
+	    	if($("#chat-widget").is(":visible")){
+	    		$("#chat-widget").hide();
+	    	}else{
+				$("#chat-widget").show();
+	    	}
+		});
+	});
+</script>

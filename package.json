@@ -1,0 +1,7 @@
+{
+  "name": "chat-widget",
+  "private": true,
+  "dependencies": {
+    "chat-engine": "^0.9.5"
+  }
+}
